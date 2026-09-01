@@ -1,0 +1,5 @@
+interface:
+  display_name: "医療業務改善アプリ作成"
+  short_description: "病院・検査室向けの使いやすい業務改善アプリを安定して作成"
+  default_prompt: "Use $build-clinical-workflow-app to create a simple Japanese Streamlit application for improving a hospital or laboratory workflow."
+
