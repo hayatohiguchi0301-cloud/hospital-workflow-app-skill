@@ -15,6 +15,7 @@ State the selected mode in `README.md`. LAN sharing is not internet publishing a
 - Resolve the database, uploads, exports, and configuration from `Path(__file__).resolve().parent` or another project-relative base. Never embed a developer PC path.
 - Keep durable data in a clearly named directory such as `data/`. Exclude `.venv`, caches, local databases, exports, and secrets from Git, while documenting which data files must be copied for migration.
 - Use compatible dependency ranges in `requirements.txt`. Do not copy `.venv` between PCs as the runtime; recreate it on the destination PC.
+- Build transfer archives from an explicit allowlist of application code, configuration, launchers, requirements, and required source templates. Exclude `.venv`, broken-environment backups, caches, logs, diagnostics, exports, secrets, and working databases by default.
 - Before copying or restoring SQLite data, stop the app. If WAL mode is used, use SQLite's backup API or make sure the database is cleanly closed and copy the database together with any required `-wal`/`-shm` files. Prefer a documented in-app or scripted backup for important data.
 - Keep machine-specific values such as host name, IP address, port, shared folder, and hospital name outside application logic. Treat a `.url` shortcut as deployment-specific; generate or edit it only after the destination host is known.
 
@@ -28,6 +29,9 @@ Adapt `assets/windows-launcher/起動.bat` and keep these behaviors:
 - Install from `requirements.txt` using the virtual environment's Python and stop with an actionable message on failure.
 - Start Streamlit through `python -m streamlit`, not an assumed global executable.
 - Keep the console open on errors so a non-engineer can report what happened.
+- For a PowerShell 5.1 launcher in a Japanese-named project directory, set the project working directory first and pass ASCII relative arguments such as `.venv`, `requirements.txt`, and `app.py` to native Python commands. Non-ASCII native-command arguments can be corrupted even when PowerShell itself resolves the path correctly.
+- Under PowerShell's `$ErrorActionPreference = "Stop"`, run native dependency probes so stderr output does not bypass exit-code handling. Treat launch failure and a nonzero exit code as an unusable environment, then enter the intended rebuild path.
+- On final startup failure, preserve the original exception in a UTF-8 diagnostic file such as `startup-error.txt`; show its location and keep the launcher window open.
 
 Package installation normally needs access to the configured Python package source. If the hospital PC is offline or outbound access is restricted, do not imply that the launcher solves this; provide an approved offline wheelhouse or involve hospital IT.
 
@@ -67,3 +71,4 @@ In addition to ordinary tests:
 3. Confirm data paths stay inside the project regardless of the shell's current directory.
 4. For LAN mode, confirm `localhost` health first and record whether a second-PC connection was actually tested.
 5. Stop and restart the app and confirm existing records remain.
+6. Extract the actual transfer archive into a fresh directory and test it without `.venv`; distinguish a network-dependent package-installation result from the Streamlit application health result.
